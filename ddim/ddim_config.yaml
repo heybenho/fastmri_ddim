@@ -1,0 +1,47 @@
+# paths
+data_path: ../datasets/knee
+val_data_path: ../datasets/knee/singlecoil_val
+test_data_path: ../datasets/knee/singlecoil_test
+log_path: ../logs/knee/singlecoil/
+checkpoint_path: ../logs/knee/singlecoil/checkpoints/epoch=75-step=330068.ckpt
+output_path: ../outputs/knee/singlecoil_val_ddim
+
+client:
+  mode: train     # operation mode, {train, test}
+
+data_transform:
+  mask_type: random  # type of k-space mask, {random, equispaced_fraction}
+  center_fractions: [0.08]  # num of center lines to use in mask, default [0.08]
+  accelerations: [4]  # mask acceleration rates, default [4]
+
+data_module:
+  batch_size: 8
+  challenge: singlecoil  # {singlecoil, multicoil}
+
+model:    # DDIM model params
+  chans: 16  # top-level U-Net channels, default 32
+  num_pool_layers: 4  # U-Net pooling layers, default 4
+  n_timesteps: 1000
+  drop_prob: 0.0
+  lr: 0.0074  # RMSProp
+  lr_step_size: 6  # epoch at which to decrease learning rate
+  lr_gamma: 0.1  # how much to decrease learning rate
+  weight_decay: 0.0  # regularization strength
+
+trainer:
+  gpus: 1  # number of gpus to use
+  replace_sampler_ddp: False  # this is necessary for volume dispatch during val
+  seed: 4  # random seed
+  deterministic: True  # makes things slower, but deterministic
+  max_epochs: 100 # max number of epochs
+
+# diffusion, assume linear beta schedule
+# timesteps: 1000
+# sampling_steps: 100
+# beta_start: 1e-4
+# beta_end: 0.02
+
+# # data_transform
+# mask_type: random
+# center_fractions: [0.08]
+# accelerations: [4]
